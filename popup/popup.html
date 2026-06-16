@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShieldKey</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="header">
+      <div class="header-left">
+        <svg class="logo" width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+          <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <h1 class="header-title">ShieldKey</h1>
+      </div>
+      <div class="header-right">
+        <button id="btn-theme" class="icon-btn" title="Toggle theme">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+          </svg>
+        </button>
+        <button id="btn-menu" class="icon-btn" title="Menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="search-bar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input type="text" id="search-input" placeholder="Search accounts..." autocomplete="off">
+    </div>
+
+    <div id="accounts-list" class="accounts-list"></div>
+
+    <div id="empty-state" class="empty-state hidden">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+      </svg>
+      <p>No accounts yet</p>
+      <span>Add your first account to get started</span>
+    </div>
+
+    <button id="btn-add" class="fab" title="Add account">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+    </button>
+
+    <div id="dropdown-menu" class="dropdown hidden">
+      <button id="menu-export" class="dropdown-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+        </svg>
+        <div class="dropdown-item-text">
+          <span>Export Vault</span>
+          <small>Save a backup of all your accounts</small>
+        </div>
+      </button>
+      <button id="menu-import" class="dropdown-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+        </svg>
+        <div class="dropdown-item-text">
+          <span>Import Vault</span>
+          <small>Restore accounts from a backup file</small>
+        </div>
+      </button>
+      <div class="dropdown-hint">
+        Format: <code>{ "accounts": [{ "issuer": "Google", "secret": "ABC...", "label": "you@mail.com" }] }</code>
+      </div>
+    </div>
+
+    <div id="modal-add" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <h2>Add Account</h2>
+        <div class="modal-tabs">
+          <button class="tab active" data-tab="manual">Manual Entry</button>
+          <button class="tab" data-tab="qr">Scan QR</button>
+        </div>
+
+        <div id="tab-manual" class="tab-content active">
+          <div class="form-group">
+            <label for="input-issuer">Service Name</label>
+            <input type="text" id="input-issuer" placeholder="e.g. Google, GitHub">
+          </div>
+          <div class="form-group">
+            <label for="input-label">Account / Email</label>
+            <input type="text" id="input-label" placeholder="e.g. user@example.com">
+          </div>
+          <div class="form-group">
+            <label for="input-secret">Secret Key</label>
+            <input type="text" id="input-secret" placeholder="e.g. JBSWY3DPEHPK3PXP">
+          </div>
+          <div class="form-group">
+            <label for="input-category">Category</label>
+            <select id="input-category">
+              <option value="">None</option>
+              <option value="social">Social</option>
+              <option value="work">Work</option>
+              <option value="finance">Finance</option>
+              <option value="email">Email</option>
+              <option value="development">Development</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+
+        <div id="tab-qr" class="tab-content">
+          <button id="btn-scan-page" class="btn btn-secondary btn-full btn-compact">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v3h-3M14 20h3"/>
+            </svg>
+            Scan QR from Page
+          </button>
+
+          <div id="qr-drop-zone" class="qr-drop-zone">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+            </svg>
+            <p>Drop QR image here or paste (Ctrl+V)</p>
+            <span class="drop-hint">Screenshot the QR from your 2FA setup page, then drag or paste it here</span>
+          </div>
+
+          <div class="qr-format-hint">
+            <span>Expected format:</span>
+            <code>otpauth://totp/Service:user@mail.com?secret=KEY&issuer=Service</code>
+          </div>
+
+          <div id="qr-result" class="qr-result hidden">
+            <p class="qr-success">✓ QR Code detected</p>
+            <p id="qr-account-info"></p>
+          </div>
+
+          <input type="file" id="input-qr-file" accept="image/*" hidden>
+        </div>
+
+        <div class="modal-actions">
+          <button id="btn-cancel" class="btn btn-ghost">Cancel</button>
+          <button id="btn-save" class="btn btn-primary">Save Account</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-confirm" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content modal-confirm-content">
+        <div class="confirm-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <p id="confirm-message" class="confirm-text">Are you sure?</p>
+        <div class="modal-actions">
+          <button id="btn-confirm-no" class="btn btn-ghost">Cancel</button>
+          <button id="btn-confirm-yes" class="btn btn-danger">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <input type="file" id="input-import-file" accept=".json" hidden>
+
+    <div id="toast" class="toast hidden">
+      <span id="toast-message"></span>
+    </div>
+  </div>
+
+  <script src="../lib/jsqr.min.js"></script>
+  <script src="../lib/totp.js"></script>
+  <script src="../lib/qr-scanner.js"></script>
+  <script src="../lib/storage.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
