@@ -15,7 +15,7 @@ A professional Chrome extension that generates TOTP two-factor authentication co
 ## Installation
 
 ### Chrome Web Store (Recommended)
-1. Visit the [ShieldKey Chrome Web Store page](#https://chromewebstore.google.com/detail/fhpgdpegnobeeaelckegdfjpcjlmgglj)
+1. Visit the [ShieldKey Chrome Web Store page](https://chromewebstore.google.com/detail/fhpgdpegnobeeaelckegdfjpcjlmgglj)
 2. Click **Add to Chrome**
 3. Pin the extension from the toolbar puzzle icon
 
